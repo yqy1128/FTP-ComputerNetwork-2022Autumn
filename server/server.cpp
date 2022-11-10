@@ -8,7 +8,6 @@ using namespace std;
 #define BUFFER_SIZE 1024
 
 typedef struct Packet {
-    int len;
     char buffer[BUFFER_SIZE];
 };
 
@@ -64,15 +63,16 @@ int main(int argc, char* argv[]) {
             cout << "receive" << endl;
         flag = 1;
         //BUFFER_SIZE = 1024
-        //test
+
+        //接收指令类型
+        string instr;
+        recv(clientSocket, (char*)&instr, sizeof(instr), 0);
+        cout << "Instr: " << instr << endl;
+
+        //test: upload
         recv(clientSocket, (char*)&p, sizeof(struct Packet), 0);
         cout << "Client say: " << p.buffer << endl;
-        /*if (num > 0)
-        {
-            msg[1023] = '\0';
-            cout << "Client say: " << msg << endl;
 
-        }*/
 
         string data;
         getline(cin, data);

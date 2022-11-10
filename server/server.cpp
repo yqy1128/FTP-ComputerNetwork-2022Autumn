@@ -4,6 +4,14 @@
 using namespace std;
 #pragma comment(lib,"ws2_32.lib")
 
+
+#define BUFFER_SIZE 1024
+
+typedef struct Packet {
+    int len;
+    char buffer[BUFFER_SIZE];
+};
+
 int main(int argc, char* argv[]) {
 
     WORD sockVersion = MAKEWORD(2, 2);
@@ -39,7 +47,8 @@ int main(int argc, char* argv[]) {
 
     SOCKET clientSocket;
     sockaddr_in client_sin;
-    char msg[100];//存储传送的消息
+
+    struct Packet p;//存储传送的消息
     int flag = 0;//是否已经连接上
     int len = sizeof(client_sin);
     while (true) {
@@ -54,13 +63,16 @@ int main(int argc, char* argv[]) {
         if (!flag)
             cout << "receive" << endl;
         flag = 1;
-        int num = recv(clientSocket, msg, 100, 0);
-        if (num > 0)
+        //BUFFER_SIZE = 1024
+        //test
+        recv(clientSocket, (char*)&p, sizeof(struct Packet), 0);
+        cout << "Client say: " << p.buffer << endl;
+        /*if (num > 0)
         {
-            msg[num] = '\0';
+            msg[1023] = '\0';
             cout << "Client say: " << msg << endl;
 
-        }
+        }*/
 
         string data;
         getline(cin, data);

@@ -8,15 +8,21 @@ using namespace std;
 #define BUFFER_SIZE 1024
 
 SOCKET clientSocket;
-char recvdata[1024];
+//char recvdata[1024];
 
 typedef struct Packet {
     char buffer[BUFFER_SIZE];
 };
 
+void sendInstr(string instr) {
+    send(clientSocket, (char*)&instr, sizeof(instr), 0);
+}
+
+
 void pwd() {
-    if (int num = recv(clientSocket, recvdata, 1024, 0) > 0) {
-        cout << recvdata << endl;
+    struct Packet p;
+    if (int num = recv(clientSocket, (char*)&p, sizeof(struct Packet), 0) > 0) {
+        cout << p.buffer << endl;
         return;
     }
 }
@@ -36,12 +42,16 @@ void readAndSendFile(string filename) {
         cout << "Open file error..." << endl;
         return;
     }
+
     while (ifile) {
         struct Packet p;
+        memset(p.buffer, BUFFER_SIZE, 0);
+
         ifile.read(p.buffer, BUFFER_SIZE);
         if (ifile.gcount() < BUFFER_SIZE) {
             p.buffer[ifile.gcount()] = '\0';
         }
+        //p.instr = "put";
         send(clientSocket, (char*)&p, sizeof(struct Packet), 0);
 
     }
@@ -77,11 +87,10 @@ int main()
         
         string str,cmd,params;
         getline(cin, str);
-            cmd = str.substr(0, str.find(" "));
-            params = str.substr(str.find(" ") + 1, str.length() - 1);
-        //const char * msg;
-        //msg = cmd.c_str();
-        //send(clientSocket, msg, strlen(msg), 0);
+        cmd = str.substr(0, str.find(" "));
+        params = str.substr(str.find(" ") + 1, str.length() - 1);
+        //发送指令类型
+        sendInstr(cmd);
 
         if (cmd =="quit") {
             closesocket(clientSocket);
@@ -95,11 +104,7 @@ int main()
             readAndSendFile(params);
         }
 
-        /*int num = recv(clientSocket, recvdata, 100, 0);
-        if (num > 0){
-            recvdata[num] = '\0';
-            cout <<"Sever say:"<< recvdata << endl;
-        }*/
+
         closesocket(clientSocket);
 
     }
